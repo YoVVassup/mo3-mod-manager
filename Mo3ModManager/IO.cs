@@ -10,9 +10,9 @@ namespace Mo3ModManager
     static class IO
     {
         /// <summary>
-        /// Delete everything in the directory.
+        /// Удаляет все содержимое каталога.
         /// </summary>
-        /// <param name="Directory">The directory to be cleared</param>
+        /// <param name="Directory">Каталог для очистки</param>
         public static void ClearDirectory(string Directory)
         {
 
@@ -27,11 +27,11 @@ namespace Mo3ModManager
             }
         }
         /// <summary>
-        /// Determine whether the two files are actually the same.
-        /// Note that in the ReFS file system, the method might not work properly. Must use GetFileInformationByHandleEx() to support ReFS.
+        /// Определяет, являются ли два файла на самом деле одинаковыми.
+        /// Примечание: в файловой системе ReFS этот метод может работать некорректно. Для поддержки ReFS необходимо использовать GetFileInformationByHandleEx().
         /// </summary>
-        /// <param name="FileA">A file's path.</param>
-        /// <param name="FileB">Another file's path</param>
+        /// <param name="FileA">Путь к файлу A.</param>
+        /// <param name="FileB">Путь к файлу B</param>
         /// <returns></returns>
         public static bool IsSameFile(string FileA, string FileB)
         {
@@ -47,7 +47,7 @@ namespace Mo3ModManager
 
             if (fileAHandle == Win32.NativeConstants.INVALID_HANDLE_VALUE)
             {
-                Trace.WriteLine("[Warn] Can not open file " + FileA + ". Error " + Win32.NativeMethods.GetLastError() + ".");
+                Trace.WriteLine("[Предупреждение] Не удалось открыть файл " + FileA + ". Ошибка " + Win32.NativeMethods.GetLastError() + ".");
                 return false;
             }
 
@@ -63,19 +63,19 @@ namespace Mo3ModManager
 
             if (fileBHandle == Win32.NativeConstants.INVALID_HANDLE_VALUE)
             {
-                Trace.WriteLine("[Warn] Can not open file " + FileB + ". Error " + Win32.NativeMethods.GetLastError() + ".");
+                Trace.WriteLine("[Предупреждение] Не удалось открыть файл " + FileB + ". Ошибка " + Win32.NativeMethods.GetLastError() + ".");
                 return false;
             }
 
             if (!Win32.NativeMethods.GetFileInformationByHandle(fileAHandle, out var fileAInfo))
             {
-                Trace.WriteLine("[Warn] Can not get information of file " + FileA + ". Error " + Win32.NativeMethods.GetLastError() + ".");
+                Trace.WriteLine("[Предупреждение] Не удалось получить информацию о файле " + FileA + ". Ошибка " + Win32.NativeMethods.GetLastError() + ".");
                 return false;
             }
 
             if (!Win32.NativeMethods.GetFileInformationByHandle(fileBHandle, out var fileBInfo))
             {
-                Trace.WriteLine("[Warn] Can not get information of file " + FileB + ". Error " + Win32.NativeMethods.GetLastError() + ".");
+                Trace.WriteLine("[Предупреждение] Не удалось получить информацию о файле " + FileB + ". Ошибка " + Win32.NativeMethods.GetLastError() + ".");
                 return false;
             }
 
@@ -88,10 +88,10 @@ namespace Mo3ModManager
 
 
         /// <summary>
-        /// Delete all empty subfolders.
+        /// Удаляет все пустые подпапки.
         /// </summary>
-        /// <param name="directory">The folder</param>
-        /// <returns> Whether the folder is deleted or not.</returns>
+        /// <param name="directory">Папка</param>
+        /// <returns> Была ли папка удалена или нет.</returns>
         public static bool RemoveEmptyFolders(string directory)
         {
             bool status = true;
@@ -114,38 +114,38 @@ namespace Mo3ModManager
 
 
         /// <summary>
-        /// Create hard links for every files, just like copying folders.
+        /// Создает жесткие ссылки для всех файлов, как при копировании папок.
         /// </summary>
-        /// <param name="SrcDirectory">The source folder.</param>
-        /// <param name="DestDirectory">The destination folder.</param>
+        /// <param name="SrcDirectory">Исходная папка.</param>
+        /// <param name="DestDirectory">Целевая папка.</param>
         public static void CreateHardLinksOfFiles(string SrcDirectory, string DestDirectory)
         {
             CreateHardLinksOfFiles(SrcDirectory, DestDirectory, false, null);
         }
         /// <summary>
-        /// Create hard links for every files, just like copying folders.
+        /// Создает жесткие ссылки для всех файлов, как при копировании папок.
         /// </summary>
-        /// <param name="SrcDirectory">The source folder.</param>
-        /// <param name="DestDirectory">The destination folder.</param>
-        /// <param name="Override">Whether override files if exist</param>
+        /// <param name="SrcDirectory">Исходная папка.</param>
+        /// <param name="DestDirectory">Целевая папка.</param>
+        /// <param name="Override">Перезаписывать ли файлы, если они существуют</param>
         public static void CreateHardLinksOfFiles(string SrcDirectory, string DestDirectory, bool Override)
         {
-            CreateHardLinksOfFiles(SrcDirectory, DestDirectory, Override);
+            CreateHardLinksOfFiles(SrcDirectory, DestDirectory, Override, null); // Передаем null для skipExtensionsWithDotUpper
         }
         public static void CreateHardLinksOfFiles(string SrcDirectory, string DestDirectory, bool Override, List<string> skipExtensionsWithDotUpper)
         {
-            Debug.WriteLine("Source: " + SrcDirectory);
-            //Create all folders
+            Debug.WriteLine("Источник: " + SrcDirectory);
+            // Создать все папки
             foreach (string subDirectory in Directory.GetDirectories(SrcDirectory, "*", SearchOption.AllDirectories))
             {
                 string relativeName = subDirectory.Substring(SrcDirectory.Length + 1);
-                //no matter this folder exists or not, the following method don't throw exception 
+                // независимо от того, существует ли эта папка, следующий метод не выдаст исключение
                 Directory.CreateDirectory(Path.Combine(DestDirectory, relativeName));
 
-                Debug.WriteLine("CreateDirectory: " + relativeName);
+                Debug.WriteLine("Создан каталог: " + relativeName);
             }
 
-            //Create NTFS hard link if not existed
+            // Создать жесткую ссылку NTFS, если не существует
             foreach (string srcFullName in Directory.GetFiles(SrcDirectory, "*", SearchOption.AllDirectories))
             {
                 string relativeName = srcFullName.Substring(SrcDirectory.Length + 1);
@@ -160,8 +160,8 @@ namespace Mo3ModManager
                 //{
                 //    if (Override)
                 //    {
-                //        //File exists
-                //        Debug.WriteLine("Overrided: " + relativeName);
+                //        // Файл существует
+                //        Debug.WriteLine("Перезаписан: " + relativeName);
                 //        File.Delete(destFullName);
                 //        Win32.NativeMethods.CreateHardLinkW(destFullName, srcFullName, IntPtr.Zero);
                 //    }
@@ -174,7 +174,7 @@ namespace Mo3ModManager
             var ext = Path.GetExtension(destFile).ToUpperInvariant();
             if (File.Exists(destFile) && Override)
             {
-                Debug.WriteLine("Overrided: " + destFile);
+                Debug.WriteLine("Перезаписан: " + destFile);
                 File.Delete(destFile);
             }
             

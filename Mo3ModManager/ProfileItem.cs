@@ -37,7 +37,7 @@ namespace Mo3ModManager
         }
         public string SizeInMB {
             get {
-                return (this.Size / 1024.0 / 1024.0).ToString("#0.00") + " MB";
+                return (this.Size / 1024.0 / 1024.0).ToString("#0.00") + " МБ";
             }
         }
 
@@ -70,7 +70,7 @@ namespace Mo3ModManager
         }
 
         /// <summary>
-        /// Recalculate Size.
+        /// Пересчитывает размер.
         /// </summary>
         public void Refresh()
         {

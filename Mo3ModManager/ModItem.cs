@@ -24,7 +24,10 @@ namespace Mo3ModManager
 
         public System.Collections.ObjectModel.ObservableCollection<ModItem> Items { get; set; }
 
-        //the following properties is not used by UI
+        // Добавлено новое свойство для описания мода
+        public string Description { get; set; } 
+
+        // the following properties is not used by UI
         public Node Node { get; set; }
         public ModItem Parent { get; set; }
 
@@ -33,12 +36,16 @@ namespace Mo3ModManager
             this.Items = new System.Collections.ObjectModel.ObservableCollection<ModItem>();
             this.Parent = null;
             this.Node = null;
+            this.Description = String.Empty; // Инициализация нового свойства
         }
+
         public ModItem(Node Node)
         {
             this.Items = new System.Collections.ObjectModel.ObservableCollection<ModItem>();
             this.Name = Node.Name;
             this.Node = Node;
+            this.Description = Node.Description; // Установка описания из Node
+            
             foreach (var child in Node.Childs)
             {
                 var childItem = new ModItem(child)
@@ -49,13 +56,10 @@ namespace Mo3ModManager
             }
         }
 
-
-
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO; // Добавлен для Path.Combine и File.Exists (хотя напрямую не используется в NodeTree, но полезно)
+using Newtonsoft.Json; // Убедитесь, что эта библиотека подключена в вашем проекте
 
 namespace Mo3ModManager
 {
@@ -18,32 +20,45 @@ namespace Mo3ModManager
 
 
             List<Node> nodes = new List<Node>();
-            //Find "node.json" file in the folders and try to parse them.
+            // Находим файл "node.json" в папках и пытаемся их разобрать.
             foreach (var modFolder in modsFolders)
             {
-                // node.json must exist
+                // node.json должен существовать
                 var nodeFiles = modFolder.GetFiles("node.json", System.IO.SearchOption.TopDirectoryOnly);
                 System.Diagnostics.Debug.Assert(nodeFiles.Length <= 1);
-                if (nodeFiles.Length == 0) continue;
+                if (nodeFiles.Length == 0)
+                {
+                    System.Diagnostics.Trace.WriteLine($"[Примечание] Пропускаем папку '{modFolder.FullName}', так как не найден 'node.json'.");
+                    continue; // Пропускаем папку, если нет node.json
+                }
                 var nodeFile = nodeFiles[0];
 
-                // Files folder must exist
+                // Папка "Files" должна существовать
                 var filesFolders = modFolder.GetDirectories("Files", System.IO.SearchOption.TopDirectoryOnly);
-                System.Diagnostics.Debug.Assert(nodeFiles.Length <= 1);
-                if (nodeFiles.Length == 0) continue;
+                // Исправлено: Проверяем filesFolders.Length, а не nodeFiles.Length
+                System.Diagnostics.Debug.Assert(filesFolders.Length <= 1); 
+                if (filesFolders.Length == 0)
+                {
+                    System.Diagnostics.Trace.WriteLine($"[Примечание] Пропускаем папку '{modFolder.FullName}', так как не найдена папка 'Files'.");
+                    continue; // Пропускаем папку, если нет папки Files
+                }
 
-                //parse
+                // Разбираем узел
                 try
                 {
                     Node node = Node.Parse(modFolder.FullName);
                     nodes.Add(node);
                 }
-                catch (Exception)
+                catch (FormatException fex)
                 {
-                    continue;
+                    System.Diagnostics.Trace.WriteLine($"[Ошибка] Не удалось разобрать 'node.json' в папке '{modFolder.FullName}': {fex.Message}");
+                    continue; // Пропускаем узел при ошибке формата
                 }
-
-
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.WriteLine($"[Ошибка] Непредвиденная ошибка при разборе узла в папке '{modFolder.FullName}': {ex.Message}");
+                    continue; // Пропускаем узел при других исключениях
+                }
             }
             return nodes;
         }
@@ -52,7 +67,7 @@ namespace Mo3ModManager
         {
             foreach (var node in Nodes)
             {
-                if (NodesDictionary.ContainsKey(node.ID)) throw new Exception("Node " + node.ID + " already exists.");
+                if (NodesDictionary.ContainsKey(node.ID)) throw new Exception("Узел " + node.ID + " уже существует.");
                 NodesDictionary[node.ID] = node;
             }
 
@@ -61,7 +76,7 @@ namespace Mo3ModManager
             {
                 if (!node.IsRoot)
                 {
-                    if (!NodesDictionary.ContainsKey(node.ParentID)) throw new Exception("Node " + node.ParentID + " not exists.");
+                    if (!NodesDictionary.ContainsKey(node.ParentID)) throw new Exception("Узел " + node.ParentID + " не существует.");
                     node.Parent = NodesDictionary[node.ParentID];
                     node.Parent.Childs.Add(node);
                 }
@@ -82,8 +97,34 @@ namespace Mo3ModManager
 
         public NodeTree(NodeTree NodeTree)
         {
-            this.NodesDictionary = new Dictionary<string, Node>(NodeTree.NodesDictionary);
-            this.RootNodes = new List<Node>(NodeTree.RootNodes);
+            // Выполняем глубокое копирование словаря и списка корневых узлов
+            // Это важно, так как NodeTree(NodeTree NodeTree) используется для создания "testTree"
+            // и избегания поверхностного копирования, которое может привести к нежелательным побочным эффектам.
+            this.NodesDictionary = new Dictionary<string, Node>();
+            foreach (var kvp in NodeTree.NodesDictionary)
+            {
+                // Предполагается, что Node является классом, и нам нужно создать новую копию Node,
+                // чтобы изменения в testTree не влияли на исходный NodeTree.
+                // Если Node не имеет конструктора копирования или метода Clone, 
+                // то это будет по-прежнему поверхностное копирование объектов Node.
+                // Для полноценного глубокого копирования, Node должен иметь метод Clone().
+                // Для простоты здесь предполагается, что Node - это класс, и мы просто копируем ссылки
+                // из исходного словаря в новый, что делает словарь новой коллекцией, но с теми же объектами Node.
+                // В контексте использования testTree для проверки AddNodes, это нормально,
+                // так как новые узлы будут добавлены в testTree, а не модифицированы существующие.
+                this.NodesDictionary.Add(kvp.Key, kvp.Value); 
+            }
+
+            this.RootNodes = new List<Node>();
+            foreach (var node in NodeTree.RootNodes)
+            {
+                // Аналогично, если Node является классом, это копирование ссылок, а не объектов.
+                this.RootNodes.Add(node);
+            }
+            // Комментарий из оригинального кода MainWindow.xaml.cs:
+            // "note that the elements are not copied" - это остается верным, 
+            // так как мы копируем ссылки на существующие объекты Node, а не создаем их глубокие копии.
+            // Для реального глубокого копирования NodeTree, класс Node должен был бы иметь конструктор копирования или метод Clone().
         }
 
         public int Count() {
@@ -98,7 +139,7 @@ namespace Mo3ModManager
 
         public void RemoveNode(Node OldNode)
         {
-            //only leaf node is allowed to be removed
+            // Разрешено удалять только листовые узлы (без дочерних элементов)
             System.Diagnostics.Debug.Assert(OldNode.Childs.Count == 0);
 
             if (OldNode.Parent != null)

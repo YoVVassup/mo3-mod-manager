@@ -3,17 +3,17 @@
   <assemblyIdentity version="1.0.0.0" name="MyApplication.app"/>
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
-      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!-- UAC 清单选项
-             如果想要更改 Windows 用户帐户控制级别，请使用
-             以下节点之一替换 requestedExecutionLevel 节点。n
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v4">
+        <!-- Опции манифеста UAC
+             Если вы хотите изменить уровень контроля учетных записей пользователей Windows, используйте
+             один из следующих узлов вместо узла requestedExecutionLevel.
         <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
         <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
         <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
 
-            指定 requestedExecutionLevel 元素将禁用文件和注册表虚拟化。
-            如果你的应用程序需要此虚拟化来实现向后兼容性，则删除此
-            元素。
+            Указание элемента requestedExecutionLevel отключает виртуализацию файлов и реестра.
+            Если вашему приложению нужна эта виртуализация для обратной совместимости, удалите этот
+            элемент.
         -->
         <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
       </requestedPrivileges>
@@ -22,15 +22,15 @@
 
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
-      <!-- 设计此应用程序与其一起工作且已针对此应用程序进行测试的
-           Windows 版本的列表。取消评论适当的元素，Windows 将
-           自动选择最兼容的环境。 -->
+      <!-- Список версий Windows, с которыми это приложение разработано и протестировано для работы.
+           Раскомментируйте соответствующий элемент, и Windows автоматически выберет
+           наиболее совместимую среду. -->
 
       <!-- Windows Vista -->
-      <!--<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}" />-->
+      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}" />
 
       <!-- Windows 7 -->
-      <!--<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />-->
+      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />
 
       <!-- Windows 8 -->
       <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />
@@ -44,10 +44,11 @@
     </application>
   </compatibility>
 
-  <!-- 指示该应用程序可以感知 DPI 且 Windows 在 DPI 较高时将不会对其进行
-       自动缩放。Windows Presentation Foundation (WPF)应用程序自动感知 DPI，无需
-       选择加入。选择加入此设置的 Windows 窗体应用程序(目标设定为 .NET Framework 4.6 )还应
-       在其 app.config 中将 "EnableWindowsFormsHighDpiAutoResizing" 设置设置为 "true"。-->
+  <!-- Указывает, что это приложение является DPI-осведомленным, и Windows не будет автоматически
+       масштабировать его при высоких DPI. Приложения Windows Presentation Foundation (WPF)
+       автоматически DPI-осведомлены и не требуют специальной настройки. Приложения Windows Forms,
+       которые используют эту настройку (ориентированные на .NET Framework 4.6), также должны
+       установить параметр "EnableWindowsFormsHighDpiAutoResizing" в "true" в своем app.config.-->
   <!--
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
@@ -56,20 +57,20 @@
   </application>
   -->
 
-  <!-- 启用 Windows 公共控件和对话框的主题(Windows XP 和更高版本) -->
-  
+  <!-- Включает тему для общих элементов управления и диалоговых окон Windows (Windows XP и новее) -->
+
   <dependency>
     <dependentAssembly>
       <assemblyIdentity
-          type="win32"
-          name="Microsoft.Windows.Common-Controls"
-          version="6.0.0.0"
-          processorArchitecture="*"
-          publicKeyToken="6595b64144ccf1df"
-          language="*"
-        />
+              type="win32"
+              name="Microsoft.Windows.Common-Controls"
+              version="6.0.0.0"
+              processorArchitecture="*"
+              publicKeyToken="6595b64144ccf1df"
+              language="*"
+      />
     </dependentAssembly>
   </dependency>
- 
+
 
 </assembly>

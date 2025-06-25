@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 namespace Mo3ModManager
 {
     /// <summary>
-    /// InputWindow.xaml 的交互逻辑
+    /// Логика взаимодействия для InputWindow.xaml
     /// </summary>
     public partial class InputWindow : Window
     {

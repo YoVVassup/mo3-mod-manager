@@ -45,18 +45,18 @@ namespace Mo3ModManager
 
 
         /// <summary>
-        /// Delete symlink for both the node and its ancestor.
-        /// Note, if a file was deleted and rebuilt, they will be considered as respective files, and the file will be reserved.
+        /// Удаляет символические ссылки как для узла, так и для его предков.
+        /// Примечание: если файл был удален и перестроен, он будет рассматриваться как отдельный файл и будет сохранен.
         /// </summary>
-        /// <param name="ModItem">The node</param>
+        /// <param name="Node">Узел</param>
         private void CleanNode(Node Node,object addition =null)
         {
-            //source and destination is the same with "PrepareNode"
+            // Источник и назначение совпадают с "PrepareNode"
             string sourceDirectory = Node.FilesDirectory;
             Debug.WriteLine(sourceDirectory);
             string destinationDirectory = this.RunningDirectory;
 
-            //Remove a NTFS hard link is equal to remove a file
+            // Удаление жесткой ссылки NTFS равносильно удалению файла
             Exception ex = null;
             if (addition != null)
             {
@@ -68,7 +68,7 @@ namespace Mo3ModManager
                 string destFullName = Path.Combine(destinationDirectory, relativeName);
                 if (File.Exists(destFullName))
                 {
-                    //Determine whether the two files are actually the same.
+                    // Определяем, являются ли два файла на самом деле одинаковыми.
                     if (IO.IsSameFile(srcFullName, destFullName))
                     {
                         //Debug.WriteLine("Delete file: " + destFullName);
@@ -84,13 +84,13 @@ namespace Mo3ModManager
                     }
                     else
                     {
-                        Debug.WriteLine("Reserved: " + relativeName);
+                        Debug.WriteLine("Сохранено: " + relativeName);
                     }
 
                 }
             }
 
-            //Recursive for its parent
+            // Рекурсивно для родителя
             if (!Node.IsRoot)
             {
                 this.CleanNode(Node.Parent,ex);
@@ -102,9 +102,9 @@ namespace Mo3ModManager
         }
 
         /// <summary>
-        /// Create symlink for both the node and its ancestor
+        /// Создает символические ссылки как для узла, так и для его предков
         /// </summary>
-        /// <param name="ModItem">The node</param>
+        /// <param name="Node">Узел</param>
         private void PrepareNode(Node Node)
         {
             string srcDirectory = Node.FilesDirectory;
@@ -112,7 +112,7 @@ namespace Mo3ModManager
 
             IO.CreateHardLinksOfFiles(srcDirectory, destDirectory, false, new List<string>() { ".INI" });
 
-            //Recursive for its parent
+            // Рекурсивно для родителя
             if (!Node.IsRoot)
             {
                 this.PrepareNode(Node.Parent);
@@ -121,8 +121,8 @@ namespace Mo3ModManager
 
 
         /// <summary>
-        /// Run a program and wait till all of its descendants to exit. Even if the program exited early than its descendants, this method can still work properly.
-        /// Only supports Windows 8 and newer.
+        /// Запускает программу и ждет, пока все ее дочерние процессы завершатся. Даже если программа завершилась раньше своих дочерних процессов, этот метод все равно будет работать правильно.
+        /// Поддерживается только для Windows 8 и новее.
         /// </summary>
         private void RunStep2_RunAndWait()
         {
@@ -130,31 +130,31 @@ namespace Mo3ModManager
         }
 
         /// <summary>
-        /// Run a program and wait till all of its descendants to exit. Even if the program exited early than its descendants, this method can still work properly.
-        /// Only supports Windows 8 and newer.
+        /// Запускает программу и ждет, пока все ее дочерние процессы завершатся. Даже если программа завершилась раньше своих дочерних процессов, этот метод все равно будет работать правильно.
+        /// Поддерживается только для Windows 8 и новее.
         /// </summary>
-        /// <param name="Fullname">The program's path.</param>
-        /// <param name="Arguments">The arguments.</param>
-        /// <param name="WorkingDirectory">The working directory.</param>
+        /// <param name="Fullname">Путь к программе.</param>
+        /// <param name="Arguments">Аргументы.</param>
+        /// <param name="WorkingDirectory">Рабочий каталог.</param>
         private void RunStep2_RunAndWait(string Fullname, string Arguments, string WorkingDirectory)
         {
             string commandLine = '"' + Fullname + '"' + (String.IsNullOrEmpty(Arguments) ? string.Empty : ' ' + Arguments);
 
-            //See : https://blogs.msdn.microsoft.com/oldnewthing/20130405-00/?p=4743
+            // См.: https://blogs.msdn.microsoft.com/oldnewthing/20130405-00/?p=4743
 
-            Trace.WriteLine("[Note] Start up the game...");
+            Trace.WriteLine("[Примечание] Запуск игры...");
 
             IntPtr jobHandle = Win32.NativeMethods.CreateJobObjectW(IntPtr.Zero, String.Empty);
             if (jobHandle == IntPtr.Zero)
             {
-                throw new Exception("WinAPI CreateJobObjectW failed. Error " + Win32.NativeMethods.GetLastError());
+                throw new Exception("Ошибка WinAPI CreateJobObjectW. Код ошибки " + Win32.NativeMethods.GetLastError());
             }
 
 
             IntPtr ioPortHandle = Win32.NativeMethods.CreateIoCompletionPort(Win32.NativeConstants.INVALID_HANDLE_VALUE, IntPtr.Zero, 0, 1);
             if (ioPortHandle == IntPtr.Zero)
             {
-                throw new Exception("WinAPI CreateIoCompletionPort failed. Error " + Win32.NativeMethods.GetLastError());
+                throw new Exception("Ошибка WinAPI CreateIoCompletionPort. Код ошибки " + Win32.NativeMethods.GetLastError());
             }
 
             var portStruct = new Win32.JOBOBJECT_ASSOCIATE_COMPLETION_PORT()
@@ -176,7 +176,7 @@ namespace Mo3ModManager
                     (uint)portStructLength
                     ))
                 {
-                    throw new Exception("WinAPI SetInformationJobObject failed. Error " + Win32.NativeMethods.GetLastError());
+                    throw new Exception("Ошибка WinAPI SetInformationJobObject. Код ошибки " + Win32.NativeMethods.GetLastError());
                 }
 
             }
@@ -190,28 +190,28 @@ namespace Mo3ModManager
 
             var startupInfoStruct = new Win32.STARTUPINFOW() { };
 
-            //show the Working in Background cursor
+            // Показать курсор "Работа в фоновом режиме"
             startupInfoStruct.dwFlags = Win32.NativeConstants.STARTF_FORCEONFEEDBACK;
 
             startupInfoStruct.cb = (uint)Marshal.SizeOf(startupInfoStruct);
 
-            // Win32.NativeConstants.CREATE_BREAKAWAY_FROM_JOB might have some problems
+            // Win32.NativeConstants.CREATE_BREAKAWAY_FROM_JOB может иметь проблемы
             // https://blog.csdn.net/jpexe/article/details/49661479
 
             if (!Win32.NativeMethods.CreateProcessW(null, new StringBuilder(commandLine), IntPtr.Zero, IntPtr.Zero, false, Win32.NativeConstants.CREATE_SUSPENDED, IntPtr.Zero, WorkingDirectory, ref startupInfoStruct, out processInformationStruct))
             {
-                throw new Exception("WinAPI CreateProcessW failed.  Error " + Win32.NativeMethods.GetLastError());
+                throw new Exception("Ошибка WinAPI CreateProcessW. Код ошибки " + Win32.NativeMethods.GetLastError());
             }
 
 
             if (!Win32.NativeMethods.AssignProcessToJobObject(jobHandle, processInformationStruct.hProcess))
             {
-                throw new Exception("WinAPI AssignProcessToJobObject failed. Error " + Win32.NativeMethods.GetLastError());
+                throw new Exception("Ошибка WinAPI AssignProcessToJobObject. Код ошибки " + Win32.NativeMethods.GetLastError());
             }
 
             Win32.NativeMethods.ResumeThread(processInformationStruct.hThread);
 
-            //Close unnecessary handles
+            // Закрыть ненужные дескрипторы
             Win32.NativeMethods.CloseHandle(processInformationStruct.hThread);
             Win32.NativeMethods.CloseHandle(processInformationStruct.hProcess);
 
@@ -237,14 +237,14 @@ namespace Mo3ModManager
                     )
                     )
             {
-                //do nothing
+                // ничего не делать
             }
 
-            //all set
+            // все готово
             Win32.NativeMethods.CloseHandle(jobHandle);
             Win32.NativeMethods.CloseHandle(ioPortHandle);
 
-            Trace.WriteLine("[Note] Game exited.");
+            Trace.WriteLine("[Примечание] Игра завершилась.");
 
         }
 
@@ -269,8 +269,8 @@ namespace Mo3ModManager
             {
                 Directory.CreateDirectory(this.ProfileDirectory);
             }
-            Trace.WriteLine("[Note] Clearing Running Directory...");
-            //RunningDirectory should be empty. Delete all of them otherwise
+            Trace.WriteLine("[Примечание] Очистка рабочего каталога...");
+            // Рабочий каталог должен быть пустым. В противном случае удалить все.
             if (Directory.Exists(this.RunningDirectory))
             {
                 IO.ClearDirectory(this.RunningDirectory);
@@ -280,12 +280,12 @@ namespace Mo3ModManager
                 Directory.CreateDirectory(this.RunningDirectory);
             }
 
-            Trace.WriteLine("[Note] Create hard links for profiles...");
-            //Move profiles
+            Trace.WriteLine("[Примечание] Создание жестких ссылок для профилей...");
+            // Перемещение профилей
             IO.CreateHardLinksOfFiles(this.ProfileDirectory, this.RunningDirectory, false, new List<string>() { ".INI" });
 
-            Trace.WriteLine("[Note] Create hard links for game files...");
-            //Create hard links recursively - from leaf node to root
+            Trace.WriteLine("[Примечание] Создание жестких ссылок для игровых файлов...");
+            // Создание жестких ссылок рекурсивно - от листового узла к корню
             this.PrepareNode(this.Node);
 
 
@@ -293,45 +293,45 @@ namespace Mo3ModManager
                 Path.Combine(this.RunningDirectory, this.Node.MainExecutable),
                 this.Node.Compatibility);
 
-            //TODO: Set the registry to avoid firewall
+            //TODO: Установить реестр, чтобы избежать брандмауэра
 
         }
 
         private void RunStep3_Clean()
         {
-            Trace.WriteLine("[Note] Remove game files...");
-            //Clean the node
+            Trace.WriteLine("[Примечание] Удаление игровых файлов...");
+            // Очистка узла
             this.CleanNode(this.Node);
 
-            Trace.WriteLine("[Note] Remove empty folders...");
-            //Remove unnecessary folders
+            Trace.WriteLine("[Примечание] Удаление пустых папок...");
+            // Удаление ненужных папок
             if (IO.RemoveEmptyFolders(this.RunningDirectory))
             {
                 Directory.CreateDirectory(this.RunningDirectory);
             }
             else
             {
-                Trace.WriteLine("[Note] Save profiles...");
-                //Save profiles
+                Trace.WriteLine("[Примечание] Сохранение профилей...");
+                // Сохранение профилей
                 IO.CreateHardLinksOfFiles(this.RunningDirectory, this.ProfileDirectory, true, new List<string>() { ".INI" });
             }
 
             IO.ClearDirectory(this.RunningDirectory);
 
             /*
-            //Remove the directory
+            // Удаление каталога
             System.IO.Directory.Delete(this.RunningDirectory, true);
             */
 
         }
 
         /// <summary>
-        /// Do everything to run the game from specified arguments. 
-        /// Run and wait for user's confirmation that the game has exited. Will not block the thread.
-        /// This is a workaround for Windows 7 and earlier.
-        /// This method MUST be run in the UI thread.
+        /// Выполняет все действия для запуска игры с указанными аргументами. 
+        /// Запускается и ожидает подтверждения пользователя о завершении игры. Не блокирует поток.
+        /// Это обходной путь для Windows 7 и более ранних версий.
+        /// Этот метод ДОЛЖЕН быть запущен в потоке UI.
         /// </summary> 
-        /// <param name="parent">The parent window of MessageBox.</param>
+        /// <param name="parent">Родительское окно MessageBox.</param>
         public void RunLegacyAsync(System.Windows.Window parent)
         {
             System.ComponentModel.BackgroundWorker worker1 = new System.ComponentModel.BackgroundWorker();
@@ -350,7 +350,7 @@ namespace Mo3ModManager
                     }
                 }.Start();
 
-                //sleep for 10s
+                // Ждем 10 секунд
                 System.Threading.Thread.Sleep(10000);
             };
             worker1.RunWorkerCompleted += (object worker1_sender, System.ComponentModel.RunWorkerCompletedEventArgs worker1_e) =>
@@ -361,13 +361,13 @@ namespace Mo3ModManager
                 }
                 else
                 {
-                    //continue
-                    System.Windows.MessageBox.Show(parent, "You are still running Windows 7 or earlier.\n It's too old so we can't know whether the game has exited or not.\n Click the OK button when the game has exited.",
-                   "You should consider upgrading to Windows 10", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
-                    System.Windows.MessageBox.Show(parent, "Only click the OK button when the game has exited.", "Double check",
+                    // продолжить
+                    System.Windows.MessageBox.Show(parent, "Вы по-прежнему используете Windows 7 или более раннюю версию.\n Это слишком старая версия, поэтому мы не можем определить, завершилась ли игра. \n Нажмите кнопку OK, когда игра завершится.",
+                   "Рекомендуется обновиться до Windows 10", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
+                    System.Windows.MessageBox.Show(parent, "Нажимайте кнопку OK только после завершения игры.", "Двойная проверка",
                         System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
 
-                    // notice for dumbs
+                    // уведомление для не особо внимательных
                     for (var i = 0; i < 5; ++i)
                     {
                         Process[] ps = Process.GetProcesses();
@@ -389,20 +389,20 @@ namespace Mo3ModManager
 
                             if (this.RunningDirectory.Contains(exePath))
                             {
-                                System.Windows.MessageBox.Show(parent, "Only click the OK button when the game has exited.", "Double check",
+                                System.Windows.MessageBox.Show(parent, "Нажимайте кнопку OK только после завершения игры.", "Двойная проверка",
                                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
                                 break;
                             }
                         }
                     }
 
-                    Trace.WriteLine("[Note] Game exited.");
+                    Trace.WriteLine("[Примечание] Игра завершилась.");
 
                     System.ComponentModel.BackgroundWorker worker2 = new System.ComponentModel.BackgroundWorker();
 
                     worker2.DoWork += (object worker2_sender, System.ComponentModel.DoWorkEventArgs worker2_e) =>
                     {
-                        //wait for 3s. just in case 
+                        // ждать 3 секунды. на всякий случай
                         System.Threading.Thread.Sleep(3000);
                         RunStep3_Clean();
                     };
@@ -422,9 +422,9 @@ namespace Mo3ModManager
         }
 
         /// <summary>
-        /// Do everything to run the game from specified arguments. 
-        /// Wait till game exited. Will not block the thread.
-        /// Only supports Windows 8 or newer. 
+        /// Выполняет все действия для запуска игры с указанными аргументами. 
+        /// Ждет завершения игры. Не блокирует поток.
+        /// Поддерживается только для Windows 8 или новее. 
         /// </summary>
         public void RunAsync()
         {
@@ -445,21 +445,21 @@ namespace Mo3ModManager
         }
 
         /// <summary>
-        /// Occurs when the background operation has completed, has been canceled, or has raised an exception.
+        /// Происходит, когда фоновая операция завершена, отменена или вызвала исключение.
         /// </summary>
         public event System.ComponentModel.RunWorkerCompletedEventHandler RunWorkerCompleted;
 
         /// <summary>
-        /// Do everything to run the game from specified arguments. 
-        /// Wait till game exited. Will block the thread.
-        /// Only supports Windows 8 or newer. 
+        /// Выполняет все действия для запуска игры с указанными аргументами. 
+        /// Ждет завершения игры. Блокирует поток.
+        /// Поддерживается только для Windows 8 или новее. 
         /// </summary>
         public void Run()
         {
             RunStep1_Prepare();
             RunStep2_RunAndWait();
 
-            //wait for 3s. just in case 
+            // ждать 3 секунды. на всякий случай
             System.Threading.Thread.Sleep(3000);
             RunStep3_Clean();
         }
@@ -467,6 +467,3 @@ namespace Mo3ModManager
 
     }
 }
-
-
-

@@ -8,7 +8,13 @@
         FontSize="14"
         Title="Mental Omega Mod Manager" Height="450" Width="800" Icon="Icon.ico" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
     <Grid>
-        <DockPanel LastChildFill="True" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Левая колонка (Моды и Профили) -->
+        <DockPanel LastChildFill="True" Grid.Column="0">
             <Grid DockPanel.Dock="Bottom" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -16,36 +22,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel x:Name="icon" Grid.Column="2" >
-                    <Button x:Name="RunButton"  Click="RunButton_Click" IsEnabled="False" >
-                        <AccessText>_Play</AccessText>
-                    </Button>
-                    <!--<Button x:Name="PropertiesButton" IsEnabled="False">Properties...</Button>-->
-                    <!--<Button x:Name="BrowseButton" Click="BrowseButton_Click">Browse...</Button> -->
-                    
-                    <Button x:Name="InstallModButton" Click="InstallModButton_Click"  >
-                        <AccessText>_Install Mod...</AccessText>
-                    </Button>
-                    <Button x:Name="DeleteModButton" IsEnabled="False" Click="DeleteModButton_Click">
-                        <AccessText>_Delete Mod...</AccessText>
-                    </Button>
-                    
-                    
-                    <Button x:Name="NewProfileButton" Click="NewProfileButton_Click" >
-                        <AccessText>_New Profile...</AccessText>
-                    </Button>
-                    <Button x:Name="RenameProfileButton" IsEnabled="False" Click="RenameProfileButton_Click">
-                        <AccessText>_Rename Profile...</AccessText>
-                    </Button>
-                    <Button x:Name="DeleteProfileButton" Click="DeleteProfileButton_Click" IsEnabled="False" >
-                        <AccessText>D_elete Profile...</AccessText>
-                    </Button>
-                    <Button x:Name="AboutButton" MouseEnter="AboutButton_MouseEnter" MouseLeave="AboutButton_MouseLeave" Click="AboutButton_Click" >
-                        <AccessText>_About...</AccessText>
-                    </Button>
-                </StackPanel>
-
-                <GroupBox x:Name="ProfilesGroupBox" Grid.Column="0" Header="Profiles">
+                <GroupBox x:Name="ProfilesGroupBox" Grid.Column="0" Header="Профили">
                     <ListView x:Name="ProfilesListView" SelectionChanged="ProfilesListView_SelectionChanged" MouseDoubleClick="ProfilesListView_MouseDoubleClick">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -62,19 +39,49 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </GroupBox>
+
+                <!-- Эта StackPanel содержит кнопки для действий с модами и профилями -->
+                <StackPanel x:Name="icon" Grid.Column="2" >
+                    <Button x:Name="RunButton"  Click="RunButton_Click" IsEnabled="False" >
+                        <AccessText>_Играть</AccessText>
+                    </Button>
+                    <!--<Button x:Name="PropertiesButton" IsEnabled="False">Properties...</Button>-->
+                    <!--<Button x:Name="BrowseButton" Click="BrowseButton_Click">Browse...</Button> -->
+                    
+                    <Button x:Name="InstallModButton" Click="InstallModButton_Click"  >
+                        <AccessText>_Установить мод...</AccessText>
+                    </Button>
+                    <Button x:Name="DeleteModButton" IsEnabled="False" Click="DeleteModButton_Click">
+                        <AccessText>_Удалить мод...</AccessText>
+                    </Button>
+                    
+                    
+                    <Button x:Name="NewProfileButton" Click="NewProfileButton_Click" >
+                        <AccessText>_Новый профиль...</AccessText>
+                    </Button>
+                    <Button x:Name="RenameProfileButton" IsEnabled="False" Click="RenameProfileButton_Click">
+                        <AccessText>_Переименовать профиль...</AccessText>
+                    </Button>
+                    <Button x:Name="DeleteProfileButton" Click="DeleteProfileButton_Click" IsEnabled="False" >
+                        <AccessText>_Удалить профиль...</AccessText>
+                    </Button>
+                    <Button x:Name="AboutButton" MouseEnter="AboutButton_MouseEnter" MouseLeave="AboutButton_MouseLeave" Click="AboutButton_Click" >
+                        <AccessText>_О программе...</AccessText>
+                    </Button>
+                </StackPanel>
             </Grid>
 
 
-            <GroupBox x:Name="ModsGroupBox"  DockPanel.Dock="Top"  Header="Mods" Margin="5">
+            <GroupBox x:Name="ModsGroupBox" DockPanel.Dock="Top" Header="Моды" Margin="5">
                 <TreeView x:Name="ModTreeView" SelectedItemChanged="ModTreeView_SelectedItemChanged">
-                    <!--Bind TreeViewItem-->
+                    <!--Привязка TreeViewItem-->
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate DataType="{x:Type local:ModItem}" ItemsSource="{Binding Items}">
                             <TextBlock Text="{Binding Title}"  />
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
 
-                    <!--Expanded by default-->
+                    <!--Развернуто по умолчанию-->
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <Setter Property="IsExpanded" Value="True" />
@@ -85,6 +92,30 @@
                 </TreeView>
             </GroupBox>
 
+        </DockPanel>
+
+        <!-- Правая колонка (Описание и Изображение) -->
+        <DockPanel LastChildFill="True" Grid.Column="1" Margin="5">
+            <GroupBox x:Name="DescriptionGroupBox" DockPanel.Dock="Top" Header="Описание" >
+                <StackPanel>
+                    <!-- Элемент для отображения изображения мода -->
+                    <Image x:Name="ModImageViewer"
+                           Margin="5"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"
+                           Cursor="Hand"
+                           MouseLeftButtonDown="ModImageViewer_MouseLeftButtonDown"/>
+
+                    <!-- Элемент для отображения описания мода -->
+                    <TextBlock x:Name="ModDescriptionTextBlock"
+                               TextWrapping="Wrap"
+                               Margin="10"
+                               FontSize="12"
+                               Foreground="Gray"
+                               Text="Выберите мод, чтобы увидеть его описание и изображение."/>
+                </StackPanel>
+            </GroupBox>
         </DockPanel>
 
     </Grid>

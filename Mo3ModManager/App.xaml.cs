@@ -8,7 +8,7 @@ using System.Windows;
 namespace Mo3ModManager
 {
     /// <summary>
-    /// App.xaml 的交互逻辑
+    /// Логика взаимодействия для App.xaml
     /// </summary>
     public partial class App : Application
     {

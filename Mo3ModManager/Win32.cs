@@ -1,4 +1,9 @@
-﻿namespace Mo3ModManager
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Mo3ModManager
 {
     static class Win32
     {
@@ -509,9 +514,9 @@
             public static extern bool CreateProcessW([System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string lpApplicationName, System.Text.StringBuilder lpCommandLine, [System.Runtime.InteropServices.InAttribute()] System.IntPtr lpProcessAttributes, [System.Runtime.InteropServices.InAttribute()] System.IntPtr lpThreadAttributes, [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)] bool bInheritHandles, uint dwCreationFlags, System.Text.StringBuilder lpEnvironment, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string lpCurrentDirectory, [System.Runtime.InteropServices.InAttribute()] ref STARTUPINFOW lpStartupInfo, [System.Runtime.InteropServices.OutAttribute()] out PROCESS_INFORMATION lpProcessInformation);
             */
 
-            //CharSet = CharSet.Unicode MUST BE WRITTEN. I wasted three hours on it.
+            // CharSet = CharSet.Unicode ДОЛЖЕН БЫТЬ УКАЗАН. Я потратил на это три часа.
 
-            //lpEnvironment should set to IntPtr.Zero IF YOU DON'T WANT TO OVERRIVE IT. Set it to new StringBuilder() will CLEAR IT. I wasted another hours on it.
+            // lpEnvironment следует установить в IntPtr.Zero, ЕСЛИ ВЫ НЕ ХОТИТЕ ЕГО ПЕРЕОПРЕДЕЛЯТЬ. Установка его в new StringBuilder() ОЧИСТИТ ЕГО. Я потратил на это еще час.
         }
 
 
