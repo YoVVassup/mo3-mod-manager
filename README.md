@@ -1,6 +1,6 @@
 <p align="center">
 	<a href="https://github.com/YoVVassup/mo3-mod-manager">
-		<img src="https://github.com/YoVVassup/mo3-mod-manager/blob/main/logo.png" alt="Mo3ModManager Logo">
+		<img src="https://github.com/YoVVassup/mo3-mod-manager/blob/master/logo.png" alt="Mo3ModManager Logo">
 	</a>
 </p>
 
